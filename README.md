@@ -365,33 +365,28 @@ Now, view the error that caused the crash:
 docker logs fastapi-dev-cont
 ```
 
-## Stop and remove old container
+### Stop and remove old container
 
 ```bash
 docker stop fastapi-dev-cont
 docker rm fastapi-dev-cont
 ```
 
-## Rebuild the image
+### Rebuild the image
 
 ```bash
 docker build -f Dockerfile.dev -t fastapi-dev-image .
 ```
 
-## Run container again
+### Run container again
 
 ```bash
 docker run -d --name fastapi-dev-cont -p 8000:8000 fastapi-dev-image
 ```
 
-## Clean storage/disk space
+### Clean storage/disk space
 
 ```bash
 docker system df
-```
-
-```bash
 docker system prune -a --volumes
-
 ```
-
