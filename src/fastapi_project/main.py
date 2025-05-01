@@ -4,13 +4,15 @@ from pydantic import BaseModel
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(title="FastAPI Development Server",
+        version="0.1.0",
+        description="My FastAPI app with a Development Server")
 
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8000"],  # Allow requests from this origin only (for development)
-    # allow_origins=["*"],  # Uncomment this line to allow all origins (not recommended for production)
+    # allow_origins=["http://localhost:8000"],  # Allow requests from this origin only (for development)
+    allow_origins=["*"],  # Uncomment this line to allow all origins (not recommended for production)
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
@@ -62,26 +64,3 @@ def delete_book(book_id: int):
             books.remove(book)
             return {"message": "Book deleted"}
     raise HTTPException(status_code=404, detail="Book not found")
-
-# Customize the OpenAPI schema to add a "Servers" dropdown
-def custom_openapi():
-    if app.openapi_schema:
-        return app.openapi_schema
-    openapi_schema = get_openapi(
-        title="FastAPI",
-        version="0.1.0",
-        description="My FastAPI app with a Development Server",
-        routes=app.routes,
-    )
-    # Add the "servers" list with a Development Server
-    openapi_schema["servers"] = [
-        {
-            "url": "http://0.0.0.0:8000",  # The server URL (matches your Docker setup)
-            "description": "Development Server"  # The name shown in the dropdown
-        }
-    ]
-    app.openapi_schema = openapi_schema
-    return app.openapi_schema
-
-# Assign the custom_openapi function to override the openapi method
-app.openapi_schema = custom_openapi()
