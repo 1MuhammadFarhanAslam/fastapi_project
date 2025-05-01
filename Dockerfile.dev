@@ -1,40 +1,40 @@
-# FastAPI Project Dockerfile
+# 🐳 FastAPI Dockerfile (Dev Mode)
 
-    ## 🐳 Docker Setup
-    # This Dockerfile is used to create a Docker image for the FastAPI application.
-    
-    # Use an official Python base image
-    FROM python:3.12
+# 1. Base image
+FROM python:3.12-slim
 
-    LABEL maintainer="Muhammad Farhan Aslam <farhanmehar422538@gmail.com>"
-    
-    # Set work directory in the container
-    # This is where the application code will be copied to
-    WORKDIR /app
-    
-    # Copy current directory contents into the container at /app
-    COPY . /app/
+LABEL maintainer="Muhammad Farhan Aslam <farhanmehar422538@gmail.com>"
 
-    # Install Poetry
-    RUN pip install --no-cache-dir poetry
+# 2. Set working directory
+WORKDIR /app
 
-    # configuration to avoid creating virtual environments inside the container
-    RUN poetry config virtualenvs.create false
+# 3. Install Poetry (package manager)
+RUN pip install --no-cache-dir poetry
 
-    # Install dependencies
-    # Install dependencies using Poetry
-    RUN poetry install --no-root
+# 4. Disable poetry virtualenv creation inside container
+RUN poetry config virtualenvs.create false
 
-    # Install system dependencies
-    RUN apt-get update && apt-get install -y \
-        build-essential \
-        gcc \
-        libpq-dev \
-        && rm -rf /var/lib/apt/lists/*
-    
-    # Expose FastAPI port
-    EXPOSE 8000
-    
-    # Run the FastAPI app
-    CMD ["poetry", "run", "uvicorn", "fastapi_project.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
-    
+# 5. Copy dependency files first (Docker caching best practice)
+COPY pyproject.toml poetry.lock /app/
+
+# 6. Install Python dependencies
+RUN poetry install --no-root
+
+# 7. Copy the actual app code (after dependencies)
+COPY ./src /app/src
+
+# 8. Set PYTHONPATH so FastAPI module is discoverable
+ENV PYTHONPATH=/app/src
+
+# 9. (Optional) System dependencies – only add if needed for DB/ORM etc.
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 10. Expose FastAPI's default port
+EXPOSE 8000
+
+# 11. Run FastAPI using uvicorn with reload enabled (dev mode)
+CMD ["poetry", "run", "uvicorn", "fastapi_project.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
