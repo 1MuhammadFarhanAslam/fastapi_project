@@ -390,3 +390,4 @@ docker run -d --name fastapi-dev-cont -p 8000:8000 fastapi-dev-image
 docker system df
 docker system prune -a --volumes
 ```
+![alt text](<Docker CLI.png>)
