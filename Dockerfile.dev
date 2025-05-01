@@ -21,6 +21,10 @@
     # configuration to avoid creating virtual environments inside the container
     RUN poetry config virtualenvs.create false
 
+    # Install dependencies
+    # Install dependencies using Poetry
+    RUN poetry install --no-root
+
     # Install system dependencies
     RUN apt-get update && apt-get install -y \
         build-essential \

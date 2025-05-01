@@ -335,3 +335,52 @@ docker rmi -f $(docker images -q)
 This will remove ALL images — use with caution!
 
 ---
+
+## Debugging stopped containers
+
+**Docker container is NOT running**
+
+```
+docker ps
+# → No output = No running container
+```
+
+You ran:
+
+```bash
+docker run -d --name fastapi-dev-cont -p 8000:8000 fastapi-dev-image
+```
+
+
+Run this command to see **stopped containers**:
+
+```bash
+docker ps -a
+```
+
+Now, view the error that caused the crash:
+
+```bash
+
+docker logs fastapi-dev-cont
+```
+
+## Stop and remove old container
+
+```bash
+docker stop fastapi-dev-cont
+docker rm fastapi-dev-cont
+```
+
+## Rebuild the image
+
+```bash
+docker build -f Dockerfile.dev -t fastapi-dev-image .
+```
+
+## Run container again
+
+```bash
+docker run -d --name fastapi-dev-cont -p 8000:8000 fastapi-dev-image
+```
+
