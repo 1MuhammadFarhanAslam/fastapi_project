@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from typing import List, Union, Any
 from pydantic import BaseModel
-from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="FastAPI Development Server",
@@ -9,7 +8,7 @@ app = FastAPI(title="FastAPI Development Server",
         description="My FastAPI app with a Development Server",
             servers=[
         {
-            "url": "http://0.0.0.0:8000", # ADD NGROK URL Here Before Creating GPT Action
+            "url": "http://localhost:8000", # ADD NGROK URL Here Before Creating GPT Action
             "description": "Development Server"
         }
         ])
