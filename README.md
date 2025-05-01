@@ -199,3 +199,139 @@ Open these:
 - `poetry run pytest -vv`
   
 ---
+
+## Let's Containerize the FastAPI App
+
+This project is a simple FastAPI app containerized with Docker for easy deployment and development.
+
+## Requirements
+
+- [Docker](https://www.docker.com/)
+- (Optional) [Poetry](https://python-poetry.org/) if running locally without Docker
+
+
+
+### Step 1: Check if Docker is Running
+```bash
+docker version
+```
+
+### Step 2: Build the Image for Development
+```bash
+docker build -f Dockerfile.dev -t fastapi-dev-image .
+```
+
+### Step 3: Check Available Images
+```bash
+docker images
+```
+
+### Step 4: Inspect the Image
+```bash
+docker inspect fastapi-dev-image
+```
+
+### Step 5: Run the Container in Dev Mode
+```bash
+docker run -d --name dev-cont1 -p 8000:8000 fastapi-dev-image
+```
+
+Open in browser:
+```
+http://localhost:8000
+http://localhost:8000/docs
+```
+
+### Step 6: View Container Logs
+```bash
+docker logs dev-cont1
+```
+
+### Step 7: Run Tests inside the Image (without starting container)
+```bash
+docker run -it --rm fastapi-dev-image /bin/bash -c "poetry run pytest"
+```
+
+---
+
+### Step 8: List Running Containers
+```bash
+docker ps
+```
+
+---
+
+### Step 9: List All Containers (including stopped ones)
+```bash
+docker ps -a
+```
+
+### Step 10: Interact with Running Container (Shell)
+```bash
+docker exec -it dev-cont1 /bin/bash
+```
+
+### Exit the Shell
+```bash
+exit
+```
+
+## If the container doesn't start correctly
+
+Run this to debug interactively:
+```bash
+docker run -it fastapi-dev-image /bin/bash
+```
+
+---
+
+## Delete Docker Images – Commands You Need
+
+### 1. **List all Docker images**
+```bash
+docker images
+```
+
+### 2. Delete a specific image by name or ID
+```bash
+docker rmi IMAGE_ID
+```
+
+**Example:**
+```bash
+docker rmi fastapi-dev-image
+```
+
+If the image is used by a container (even stopped), you’ll get an error. To force delete:
+
+```bash
+docker rmi -f IMAGE_ID
+```
+
+### 3. **Delete ALL unused (dangling) images**
+```bash
+docker image prune
+```
+
+Or more aggressively:
+```bash
+docker image prune -a
+```
+
+This will:
+- Remove all images **not used by any container**
+- Ask for confirmation
+
+To skip confirmation:
+```bash
+docker image prune -a -f
+```
+
+### 4. **Delete ALL images**
+```bash
+docker rmi -f $(docker images -q)
+```
+
+This will remove ALL images — use with caution!
+
+---
