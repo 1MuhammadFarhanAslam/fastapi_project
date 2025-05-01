@@ -6,7 +6,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="FastAPI Development Server",
         version="0.1.0",
-        description="My FastAPI app with a Development Server")
+        description="My FastAPI app with a Development Server",
+            servers=[
+        {
+            "url": "http://0.0.0.0:8000", # ADD NGROK URL Here Before Creating GPT Action
+            "description": "Development Server"
+        }
+        ])
 
 # Add CORS middleware
 app.add_middleware(
