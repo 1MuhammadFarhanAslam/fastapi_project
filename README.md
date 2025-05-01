@@ -233,7 +233,7 @@ docker inspect fastapi-dev-image
 
 ### Step 5: Run the Container in Dev Mode
 ```bash
-docker run -d --name dev-cont1 -p 8000:8000 fastapi-dev-image
+docker run -d --name fastapi-dev-cont -p 8000:8000 fastapi-dev-image
 ```
 
 Open in browser:
@@ -244,7 +244,7 @@ http://localhost:8000/docs
 
 ### Step 6: View Container Logs
 ```bash
-docker logs dev-cont1
+docker logs fastapi-dev-cont
 ```
 
 ### Step 7: Run Tests inside the Image (without starting container)
