@@ -22,6 +22,7 @@ RUN poetry install --no-root
 
 # 7. Copy the actual app code (after dependencies)
 COPY ./src /app/src
+COPY ./tests /app/tests
 
 # 8. Set PYTHONPATH so FastAPI module is discoverable
 ENV PYTHONPATH=/app/src
