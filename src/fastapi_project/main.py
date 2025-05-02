@@ -38,7 +38,7 @@ books: list[Book] = []
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to Library API. Today is Friday."}
+    return {"message": "Welcome to Library API. Today is Jumma."}
 
 @app.get("/books", response_model=List[Book])
 def get_books():

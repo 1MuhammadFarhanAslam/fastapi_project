@@ -391,3 +391,72 @@ docker system df
 docker system prune -a --volumes
 ```
 ![alt text](<Docker CLI.png>)
+---
+## How to make devcontainer executable
+
+1. Automatically sets `PYTHONPATH`
+2. Runs your FastAPI app using `poetry`
+3. Adds a safety net if something's wrong
+
+```bash
+#!/bin/bash
+
+# Navigate to the root (optional safety)
+cd /workspaces/fastapi_project || exit 1
+
+echo "Setting PYTHONPATH to src"
+export PYTHONPATH=src
+
+echo "Launching FastAPI app with poetry and uvicorn..."
+poetry run uvicorn fastapi_project.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+## 🧪 How to use:
+
+1. **Save this as `dev.sh`** in your project root (`/workspaces/fastapi_project/`)
+2. Make it executable:
+
+   ```bash
+   chmod +x dev.sh
+   ```
+3. Run it inside the Dev Container:
+
+   ```bash
+   ./dev.sh
+   ```
+
+---
+If you get any error then it usually means \*\*the script file is saved with **Windows-style line endings (`CRLF`)**, not **Unix-style (`LF`)**.
+
+Docker container (Linux-based) tries to read it, but line endings confuse the shell.
+
+## Solution: Convert file to Unix line endings
+
+### Option 1: Run this in the container
+
+```bash
+apt update && apt install -y dos2unix
+dos2unix dev.sh
+```
+
+Then try:
+
+```bash
+./dev.sh
+```
+
+### Option 2: Fix it in VS Code (recommended)
+
+1. Open `dev.sh` in VS Code
+2. Bottom-right corner → Click where it says `CRLF`
+3. Change to `LF`
+4. Save the file again
+
+Then re-run in Dev Container:
+
+```bash
+chmod +x dev.sh
+./dev.sh
+```
+---
+
