@@ -1,216 +1,462 @@
-## 🐳 Docker Compose CLI Commands
+## Step-by-Step Guide: Install Poetry on Windows
 
-#### Start & Run Containers
+### Step 1: Open PowerShell as Administrator
+
+- Press `Win` key
+- Type `powershell`
+- Right-click on **Windows PowerShell** ➜ **Run as Administrator**
+
+### Step 2: Run the Official Install Command
+
+Copy-paste this command in PowerShell:
+
+```powershell
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
+```
+
+Make sure `python` command works. If not, use `python3`.
+
+
+### Step 3: Close and Reopen Terminal
+
+After successful installation, **close PowerShell**, then open a **new one** (or use CMD or Git Bash).
+
+Now check if Poetry is installed:
 
 ```bash
-docker-compose up                     # Start all services (foreground)
-docker-compose up -d                  # Start in detached mode (background)
-docker-compose up --build             # Force rebuild and start
-docker-compose up --no-deps app       # Start only "app" service (no deps)
+poetry --version
 ```
 
-#### Stop & Remove Containers
+Output should look like: `Poetry version 1.7.x` (or latest)
+
+### Step 4: Add Poetry to PATH (if not auto-added)
+
+If you get `'poetry' is not recognized...`, add it manually:
+
+1. Find path:  
+   Default is usually:
+   ```
+   C:\Users\YourName\AppData\Roaming\Python\Scripts
+   ```
+
+2. Add this to your system’s **Environment Variables** ➜ `Path`
+
+3. Reopen terminal ➜ run `poetry --version`
+
+---
+## How to initialize poetry project/package
+- `poety new project_name`
+- `cd project_name`
+---
+## How to activate poetry env
+Looking for poetry shell? It was moved to a plugin: `poetry-plugin-shell`
+The poetry env activate command prints the activate command of the virtual environment to the console. You can run the output command manually or feed it to the eval command of your shell to activate the environment. 
+
+
+#### Recommended Way — Use `env activate`
+
+### Step-by-step:
+
+1. First, **create/init** your project (if not already done):
+```bash
+poetry init
+```
+
+2. Activate the virtual environment:
+```bash
+poetry env list --full-path
+```
+
+This will show something like:
+```
+C:\Users\username\.cache\pypoetry\virtualenvs\fastapi_project-abc123-py3.10
+```
+
+3. Now **activate it manually** using:
+
+```powershell
+& "C:\Users\username\.cache\pypoetry\virtualenvs\fastapi_project-abc123-py3.10\Scripts\Activate.ps1"
+```
+
+Your path will be **different** — copy-paste from the output of `poetry env list --full-path`
+
+1. Then install FastAPI & dependencies:
+```bash
+poetry add fastapi uvicorn[standard]
+```
+
+#### Option 2: Install Old `shell` Plugin (if you miss `poetry shell`)
 
 ```bash
-docker-compose down                              # Stop + remove containers + network
-docker-compose down -v                           # Also remove volumes
-docker-compose down --rmi all                    # Also remove built images
-docker-compose down --remove-orphans             # Remove containers not in current file
+poetry self add poetry-plugin-shell
 ```
 
-#### Restart / Control
+Now you can run:
+```bash
+poetry shell
+```
+---
+
+## How to create `main.py` and run fastapi server 
+
+Inside your project folder, make a file named:
+
+```
+src/main.py
+```
+
+Then put this code in it:
+
+```python
+# src/main.py
+from fastapi import FastAPI
+from typing import List
+from pydantic import BaseModel
+
+app = FastAPI()
+
+# Dummy data storage
+books = []
+
+# Book model
+class Book(BaseModel):
+    id: int
+    title: str
+    author: str
+    year: int
+
+@app.get("/")
+def read_root():
+    return {"message": "Welcome to Pind ki Library!"}
+
+@app.get("/books", response_model=List[Book])
+def get_books():
+    return books
+
+@app.post("/books", response_model=Book)
+def add_book(book: Book):
+    books.append(book)
+    return book
+
+@app.get("/books/{book_id}", response_model=Book)
+def get_book(book_id: int):
+    for book in books:
+        if book.id == book_id:
+            return book
+    return {"error": "Book not found"}
+
+@app.delete("/books/{book_id}")
+def delete_book(book_id: int):
+    for book in books:
+        if book.id == book_id:
+            books.remove(book)
+            return {"message": "Book deleted"}
+    return {"error": "Book not found"}
+```
+
+#### Step 2: Run the Server
+
+In your terminal, run:
 
 ```bash
-docker-compose stop                              # Stop services (keep containers)
-docker-compose start                             # Restart stopped containers
-docker-compose restart                           # Restart all containers
-docker-compose restart <service>                 # Restart a specific service
+poetry run uvicorn app.main:app --reload
 ```
 
-#### Logs & Debugging
+You’ll see something like:
+
+```
+Uvicorn running on http://127.0.0.1:8000
+```
+
+---
+
+## Step 3: Test it in Browser!
+
+Open these:
+
+- **Docs**: http://127.0.0.1:8000/docs
+- **Root**: http://127.0.0.1:8000
+
+---
+
+## What You’ve Built So Far:
+
+| Method | URL                  | Description              |
+|--------|----------------------|--------------------------|
+| GET    | `/books`             | Show all books           |
+| POST   | `/books`             | Add a new book           |
+| GET    | `/books/{book_id}`   | Get a single book        |
+| DELETE | `/books/{book_id}`   | Delete a book            |
+
+---
+## Add pytest to dependencies
+
+- `poetry add --group dev pytest`
+
+## How to run pytest
+- `poetry run pytest`
+- `poetry run pytest -v`
+- `poetry run pytest -vv`
+  
+---
+
+## Let's Containerize the FastAPI App
+
+This project is a simple FastAPI app containerized with Docker for easy deployment and development.
+
+## Requirements
+
+- [Docker](https://www.docker.com/)
+- (Optional) [Poetry](https://python-poetry.org/) if running locally without Docker
+
+
+
+### Step 1: Check if Docker is Running
+```bash
+docker version
+```
+
+### Step 2: Build the Image for Development
+```bash
+docker build -f Dockerfile.dev -t fastapi-dev-image .
+```
+
+### Step 3: Check Available Images
+```bash
+docker images
+```
+
+### Step 4: Inspect the Image
+```bash
+docker inspect fastapi-dev-image
+```
+
+### Step 5: Run the Container in Dev Mode
+```bash
+docker run -d --name fastapi-dev-cont -p 8000:8000 fastapi-dev-image
+```
+
+Open in browser:
+```
+http://localhost:8000
+http://localhost:8000/docs
+```
+
+### Step 6: View Container Logs
+```bash
+docker logs fastapi-dev-cont
+```
+
+### Step 7: Run Tests inside the Image (without starting container)
+```bash
+docker run -it --rm fastapi-dev-image /bin/bash -c "poetry run pytest"
+```
+
+---
+
+### Step 8: List Running Containers
+```bash
+docker ps
+```
+
+---
+
+### Step 9: List All Containers (including stopped ones)
+```bash
+docker ps -a
+```
+
+### Step 10: Interact with Running Container (Shell)
+```bash
+docker exec -it dev-cont1 /bin/bash
+```
+
+### Exit the Shell
+```bash
+exit
+```
+
+## If the container doesn't start correctly
+
+Run this to debug interactively:
+```bash
+docker run -it fastapi-dev-image /bin/bash
+```
+
+---
+
+## Delete Docker Images – Commands You Need
+
+### 1. **List all Docker images**
+```bash
+docker images
+```
+
+### 2. Delete a specific image by name or ID
+```bash
+docker rmi IMAGE_ID
+```
+
+**Example:**
+```bash
+docker rmi fastapi-dev-image
+```
+
+If the image is used by a container (even stopped), you’ll get an error. To force delete:
 
 ```bash
-docker-compose logs                              # Show logs from all services
-docker-compose logs -f                           # Follow logs live (tail -f style)
-docker-compose logs -f --tail=100 <service>      # Last 100 lines of a service
+docker rmi -f IMAGE_ID
 ```
 
-#### Container Access
+### 3. **Delete ALL unused (dangling) images**
+```bash
+docker image prune
+```
+
+Or more aggressively:
+```bash
+docker image prune -a
+```
+
+This will:
+- Remove all images **not used by any container**
+- Ask for confirmation
+
+To skip confirmation:
+```bash
+docker image prune -a -f
+```
+
+### 4. **Delete ALL images**
+```bash
+docker rmi -f $(docker images -q)
+```
+
+This will remove ALL images — use with caution!
+
+---
+
+## Debugging stopped containers
+
+**Docker container is NOT running**
+
+```
+docker ps
+# → No output = No running container
+```
+
+You ran:
 
 ```bash
-docker-compose ps                                # List running containers
-docker-compose exec app bash                     # Shell inside "app" container
-docker-compose exec db psql -U postgres          # Connect to Postgres
+docker run -d --name fastapi-dev-cont -p 8000:8000 fastapi-dev-image
 ```
 
-#### Build & Clean
+
+Run this command to see **stopped containers**:
 
 ```bash
-docker-compose build                             # Build all services
-docker-compose build --no-cache                  # Clean build without cache
-docker system prune -a                           # Remove all unused Docker data
-docker volume prune                              # Remove dangling volumes
+docker ps -a
 ```
+
+Now, view the error that caused the crash:
+
+```bash
+
+docker logs fastapi-dev-cont
+```
+
+### Stop and remove old container
+
+```bash
+docker stop fastapi-dev-cont
+docker rm fastapi-dev-cont
+```
+
+### Rebuild the image
+
+```bash
+docker build -f Dockerfile.dev -t fastapi-dev-image .
+```
+
+### Run container again
+
+```bash
+docker run -d --name fastapi-dev-cont -p 8000:8000 fastapi-dev-image
+```
+
+### Clean storage/disk space
+
+```bash
+docker system df
+docker system prune -a --volumes
+```
+![alt text](<Docker CLI.png>)
 ---
-## 📄 docker-compose.yml Structure Guide
+## How to make devcontainer executable
 
-### Basic Template
+1. Automatically sets `PYTHONPATH`
+2. Runs your FastAPI app using `poetry`
+3. Adds a safety net if something's wrong
 
-```yaml
-version: '3.9'
+```bash
+#!/bin/bash
 
-services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    command: poetry run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
-    ports:
-      - "8000:8000"
-    volumes:
-      - .:/app
-    depends_on:
-      - db
+# Navigate to the root (optional safety)
+cd /workspaces/fastapi_project || exit 1
 
-  db:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secret
-      POSTGRES_DB: fastapi_db
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+echo "Setting PYTHONPATH to src"
+export PYTHONPATH=src
 
-volumes:
-  db_data:
-```
----
-
-## 🧾 docker-compose.yml Section Breakdown
-
-### `services`
-
-Defines each container (API, DB, Redis etc).
-
-```yaml
-services:
-  app:
-    image: ...
+echo "Launching FastAPI app with poetry and uvicorn..."
+poetry run uvicorn fastapi_project.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
----
+## 🧪 How to use:
 
-### `build`
+1. **Save this as `dev.sh`** in your project root (`/workspaces/fastapi_project/`)
+2. Make it executable:
 
-Tell Docker how to build an image.
+   ```bash
+   chmod +x dev.sh
+   ```
+3. Run it inside the Dev Container:
 
-```yaml
-build:
-  context: .
-  dockerfile: Dockerfile.dev
-```
-
----
-
-### `command`
-
-Override default CMD of Dockerfile.
-
-```yaml
-command: poetry run uvicorn main:app --reload
-```
+   ```bash
+   ./dev.sh
+   ```
 
 ---
+If you get any error then it usually means \*\*the script file is saved with **Windows-style line endings (`CRLF`)**, not **Unix-style (`LF`)**.
 
-### `ports`
+Docker container (Linux-based) tries to read it, but line endings confuse the shell.
 
-Map host ports to container ports.
+## Solution: Convert file to Unix line endings
 
-```yaml
-ports:
-  - "8000:8000"
+### Option 1: Run this in the container
+
+```bash
+apt update && apt install -y dos2unix
+dos2unix dev.sh
 ```
 
+Then try:
+
+```bash
+./dev.sh
+```
+
+### Option 2: Fix it in VS Code (recommended)
+
+1. Open `dev.sh` in VS Code
+2. Bottom-right corner → Click where it says `CRLF`
+3. Change to `LF`
+4. Save the file again
+
+Then re-run in Dev Container:
+
+```bash
+chmod +x dev.sh
+./dev.sh
+```
 ---
 
-### `volumes`
-
-Mount host folders inside containers (for live reload).
-
-```yaml
-volumes:
-  - .:/app
-```
-
----
-
-### `depends_on`
-
-Control start order between containers.
-
-```yaml
-depends_on:
-  - db
-```
-
----
-
-### `environment`
-
-Set environment variables inside container.
-
-```yaml
-environment:
-  - POSTGRES_DB=mydb
-  - POSTGRES_USER=user
-  - POSTGRES_PASSWORD=pass
-```
-
----
-
-### `volumes:` (Global)
-
-Define named volumes to persist data across restarts.
-
-```yaml
-volumes:
-  db_data:
-```
-
----
-
-### .env File Example (Optional)
-
-`.env` file:
-
-```env
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=secret
-```
-
-And in `docker-compose.yml`:
-
-```yaml
-environment:
-  - POSTGRES_USER=${POSTGRES_USER}
-```
-
----
-
-### Recommended Project Structure
-
-```
-.
-├── docker-compose.yml
-├── Dockerfile.dev
-├── .env
-├── pyproject.toml
-├── poetry.lock
-├── src/
-│   └── main.py
-├── tests/
-```
-
----

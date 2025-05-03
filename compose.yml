@@ -1,9 +1,0 @@
-name: fastapi
-services:
-  api:
-    build:
-      context: ./ # Path to your Dockerfile
-      dockerfile: Dockerfile.dev
-    container_name: fastapi_app
-    ports:
-      - "8000:8000"
