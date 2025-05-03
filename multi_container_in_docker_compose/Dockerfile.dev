@@ -1,0 +1,41 @@
+# 🐳 FastAPI Dockerfile (Dev Mode)
+
+# 1. Base image
+FROM python:3.12
+
+LABEL maintainer="Muhammad Farhan Aslam <farhanmehar422538@gmail.com>"
+
+# 2. Set working directory
+WORKDIR /app
+
+# 5. Copy dependency files first (Docker caching best practice)
+COPY pyproject.toml poetry.lock /app/
+
+# 3. Install Poetry (package manager)
+RUN pip install --no-cache-dir poetry
+
+# 4. Disable poetry virtualenv creation inside container
+RUN poetry config virtualenvs.create false
+
+# 6. Install Python dependencies
+RUN poetry install --no-root
+
+# 7. Copy the actual app code (after dependencies)
+COPY ./src /app/src
+COPY ./tests /app/tests
+
+# 8. Set PYTHONPATH so FastAPI module is discoverable
+ENV PYTHONPATH=/app/src
+
+# 9. (Optional) System dependencies – only add if needed for DB/ORM etc.
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 10. Expose FastAPI's default port
+EXPOSE 8000
+
+# 11. Run FastAPI using uvicorn with reload enabled (dev mode)
+CMD ["poetry", "run", "uvicorn", "fastapi_project.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
