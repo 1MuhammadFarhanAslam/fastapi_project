@@ -1,4 +1,4 @@
-version: 1.0.0 # We add version for the reason if we make changes in a file we can easily track it using its version.
+version: "1.0.0" # We add version for the reason if we make changes in a file we can easily track it using its version.
 name: fastapi
 services:
   api:
