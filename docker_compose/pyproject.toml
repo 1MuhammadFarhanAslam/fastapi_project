@@ -1,0 +1,24 @@
+[project]
+name = "fastapi-project"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Muhammad Farhan Aslam",email = "farhanmehar422538@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "uvicorn (>=0.34.2,<0.35.0)",
+    "fastapi[standard] (>=0.115.12,<0.116.0)"
+]
+
+[tool.poetry]
+packages = [{include = "fastapi_project", from = "src"}]
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
